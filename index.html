@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍽️ Menú Semanal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --warm-white: #fff9f0;
+    --terracotta: #c4622d;
+    --terracotta-light: #e07a45;
+    --terracotta-dark: #9d4a1e;
+    --sage: #7a9e7e;
+    --sage-light: #a8c5ab;
+    --charcoal: #2c2c2c;
+    --gray-mid: #6b6560;
+    --gray-light: #e8e2da;
+    --gold: #c9a84c;
+    --danger: #c0392b;
+    --success: #27ae60;
+    --shadow: 0 4px 20px rgba(44,44,44,0.10);
+    --shadow-lg: 0 8px 40px rgba(44,44,44,0.15);
+    --radius: 16px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
+  }
+  .app-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .app-header .subtitle {
+    font-size: 0.7rem;
+    color: var(--sage-light);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  /* ── CONFIG BANNER ── */
+  #config-banner {
+    background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+  }
+  #config-banner button {
+    background: white;
+    color: var(--terracotta);
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--gray-light);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 14px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--gray-mid);
+    border: none;
+    background: none;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-tab:hover { color: var(--terracotta); }
+  .nav-tab.active {
+    color: var(--terracotta);
+    border-bottom-color: var(--terracotta);
+    font-weight: 600;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { padding: 24px; max-width: 960px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── FORMS ── */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.single { grid-template-columns: 1fr; }
+  @media(max-width:600px) {
+    .form-row, .form-row.three { grid-template-columns: 1fr; }
+  }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--gray-mid);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    background: var(--warm-white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--terracotta);
+    background: white;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--terracotta);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--terracotta-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(196,98,45,0.35); }
+  .btn-secondary {
+    background: white;
+    color: var(--charcoal);
+    border: 1.5px solid var(--gray-light);
+  }
+  .btn-secondary:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .btn-sage {
+    background: var(--sage);
+    color: white;
+  }
+  .btn-sage:hover { background: #5d8462; }
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+  .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+  .btn-gold { background: var(--gold); color: white; }
+  .btn-gold:hover { background: #b8943e; }
+
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* ── INGREDIENT ROWS ── */
+  .ingredient-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    align-items: end;
+    margin-bottom: 8px;
+  }
+  @media(max-width:600px) {
+    .ingredient-row { grid-template-columns: 1fr 1fr; }
+    .ingredient-row .del-btn { grid-column: span 2; }
+  }
+  .del-btn {
+    background: #ffeaea;
+    color: var(--danger);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+  }
+  .del-btn:hover { background: var(--danger); color: white; }
+
+  /* ── RECIPE LIST ── */
+  .recipe-list { display: flex; flex-direction: column; gap: 10px; }
+  .recipe-item {
+    background: var(--warm-white);
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .recipe-item:hover { border-color: var(--terracotta); }
+  .recipe-item-info { flex: 1; }
+  .recipe-item-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 3px;
+  }
+  .recipe-item-meta {
+    font-size: 0.75rem;
+    color: var(--gray-mid);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-comida { background: #fff0e0; color: #c4622d; }
+  .badge-cena { background: #e8f0ff; color: #3a5fb8; }
+  .badge-ambas { background: #e8f5ea; color: #2e7d32; }
+  .badge-reutilizable { background: #f5e8ff; color: #6a3db8; }
+
+  /* ── MENÚ GRID ── */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+  @media(max-width:700px) {
+    .menu-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .menu-day {
+    background: var(--warm-white);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1.5px solid var(--gray-light);
+  }
+  .menu-day-header {
+    background: var(--charcoal);
+    color: var(--cream);
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .menu-day-header.weekend { background: var(--terracotta); }
+  .menu-slot {
+    padding: 8px;
+    border-bottom: 1px solid var(--gray-light);
+    min-height: 70px;
+  }
+  .menu-slot:last-child { border-bottom: none; }
+  .menu-slot-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gray-mid);
+    margin-bottom: 4px;
+  }
+  .menu-slot-recipe {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--charcoal);
+    line-height: 1.3;
+    cursor: pointer;
+  }
+  .menu-slot-recipe:hover { color: var(--terracotta); }
+  .menu-slot-empty {
+    font-size: 0.72rem;
+    color: var(--gray-mid);
+    font-style: italic;
+    cursor: pointer;
+  }
+  .menu-slot-empty:hover { color: var(--terracotta); }
+  .reutilizable-badge {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* ── STOCK TABLE ── */
+  .stock-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .stock-table th {
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gray-mid);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--gray-light);
+  }
+  .stock-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gray-light);
+    font-size: 0.88rem;
+    vertical-align: middle;
+  }
+  .stock-table tr:last-child td { border-bottom: none; }
+  .stock-table tr:hover td { background: var(--warm-white); }
+  .stock-qty-input {
+    width: 80px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
+
+  /* ── SHOPPING LIST ── */
+  .shopping-list { list-style: none; }
+  .shopping-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gray-light);
+    font-size: 0.9rem;
+  }
+  .shopping-item:last-child { border-bottom: none; }
+  .shopping-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--terracotta);
+  }
+  .shopping-item.checked {
+    text-decoration: line-through;
+    color: var(--gray-mid);
+    opacity: 0.6;
+  }
+  .shopping-need { margin-left: auto; font-weight: 600; color: var(--terracotta); font-size: 0.85rem; white-space: nowrap; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(44,44,44,0.55);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+  .modal-close {
+    float: right;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--gray-mid);
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--charcoal);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.success { background: var(--success); }
+  #toast.error { background: var(--danger); }
+
+  /* ── CONFIG PANEL ── */
+  .config-field { margin-bottom: 16px; }
+  .config-note { font-size: 0.8rem; color: var(--gray-mid); margin-top: 4px; line-height: 1.5; }
+  .config-note a { color: var(--terracotta); }
+
+  /* ── UTILS ── */
+  .hidden { display: none !important; }
+  .text-center { text-align: center; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mb-16 { margin-bottom: 16px; }
+  .flex { display: flex; }
+  .gap-8 { gap: 8px; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .flex-wrap { flex-wrap: wrap; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray-mid);
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--gray-light);
+    margin: 20px 0;
+  }
+
+  .info-box {
+    background: #f0f7ff;
+    border-left: 3px solid #3a7bd5;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px 16px;
+    font-size: 0.84rem;
+    color: #1a4a8a;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar-wrap {
+    background: var(--gray-light);
+    border-radius: 10px;
+    height: 8px;
+    margin-top: 4px;
+  }
+  .progress-bar {
+    height: 8px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--sage), var(--sage-light));
+    transition: width 0.5s ease;
+  }
+
+  /* Mobile adjustments */
+  @media(max-width:480px) {
+    .main { padding: 16px; }
+    .card { padding: 16px; }
+    .app-header h1 { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:1.4rem;">🍽️</span>
+      <h1>Menú Semanal</h1>
+    </div>
+    <div class="subtitle">Planificador familiar · 3-4 personas</div>
+  </div>
+  <button class="btn btn-secondary btn-sm" onclick="openConfig()">⚙️ Config</button>
+</header>
+
+<!-- CONFIG BANNER -->
+<div id="config-banner">
+  <span>⚠️ Conecta tu Google Sheet para empezar</span>
+  <button onclick="openConfig()">Configurar ahora</button>
+</div>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('menu')" id="tab-menu">📅 Menú</button>
+  <button class="nav-tab" onclick="showSection('recetas')" id="tab-recetas">📖 Recetas</button>
+  <button class="nav-tab" onclick="showSection('stock')" id="tab-stock">📦 Stock</button>
+  <button class="nav-tab" onclick="showSection('compra')" id="tab-compra">🛒 Lista Compra</button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ── SECCIÓN MENÚ ── -->
+  <section id="section-menu" class="section active">
+    <div class="card">
+      <div class="flex items-center justify-between flex-wrap gap-8 mb-16">
+        <div class="card-title" style="margin-bottom:0">📅 Menú de la semana</div>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-gold" onclick="generarMenuAleatorio()">🎲 Generar aleatorio</button>
+          <button class="btn btn-secondary" onclick="limpiarMenu()">🗑️ Limpiar</button>
+          <button class="btn btn-primary" onclick="guardarMenu()">💾 Guardar</button>
+        </div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--gray-mid);margin-bottom:12px;">
+        Semana del <strong id="semana-label">—</strong> · Haz clic en cualquier comida/cena para cambiarla. <span style="background:var(--gold);width:8px;height:8px;display:inline-block;border-radius:50%;vertical-align:middle;"></span> = reutilizable
+      </p>
+      <div class="menu-grid" id="menu-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Resumen de la semana</div>
+      <div id="menu-resumen" style="font-size:0.88rem;color:var(--gray-mid);">Genera un menú para ver el resumen.</div>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN RECETAS ── -->
+  <section id="section-recetas" class="section">
+    <div class="card">
+      <div class="flex items-center justify-between flex-wrap gap-8 mb-16">
+        <div class="card-title" style="margin-bottom:0">📖 Mis recetas</div>
+        <button class="btn btn-primary" onclick="abrirModalReceta()">➕ Nueva receta</button>
+      </div>
+      <div id="recetas-lista" class="recipe-list">
+        <div class="empty-state">
+          <div class="icon">👨‍🍳</div>
+          <p>No hay recetas todavía.<br>Añade tu primera receta para empezar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN STOCK ── -->
+  <section id="section-stock" class="section">
+    <div class="card">
+      <div class="flex items-center justify-between flex-wrap gap-8 mb-16">
+        <div class="card-title" style="margin-bottom:0">📦 Stock disponible</div>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-secondary" onclick="agregarIngredienteStock()">➕ Ingrediente</button>
+          <button class="btn btn-primary" onclick="guardarStock()">💾 Guardar cambios</button>
+        </div>
+      </div>
+      <div id="stock-container">
+        <div class="empty-state">
+          <div class="icon">📦</div>
+          <p>El stock se llena automáticamente con los ingredientes de tus recetas.<br>Añade recetas primero.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN LISTA COMPRA ── -->
+  <section id="section-compra" class="section">
+    <div class="card">
+      <div class="flex items-center justify-between flex-wrap gap-8 mb-16">
+        <div class="card-title" style="margin-bottom:0">🛒 Lista de la compra</div>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-secondary" onclick="generarListaCompra()">🔄 Recalcular</button>
+          <button class="btn btn-sage" onclick="marcarCompraRealizada()">✅ Compra realizada</button>
+        </div>
+      </div>
+      <div id="compra-container">
+        <div class="empty-state">
+          <div class="icon">🛒</div>
+          <p>Genera un menú y pulsa "Recalcular"<br>para ver la lista de la compra.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🍳 Marcar recetas cocinadas</div>
+      <div id="cocinadas-container">
+        <p style="font-size:0.85rem;color:var(--gray-mid);">Selecciona las recetas que ya has cocinado para actualizar el stock.</p>
+        <div id="cocinadas-lista" class="mt-16"></div>
+        <div class="btn-group">
+          <button class="btn btn-terracotta btn-primary" onclick="marcarCocinadas()">🍴 Actualizar stock</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ── MODAL RECETA ── -->
+<div id="modal-receta" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-receta')">✕</button>
+    <div class="modal-title" id="modal-receta-titulo">Nueva receta</div>
+
+    <div class="form-row single">
+      <div>
+        <label>Nombre de la receta *</label>
+        <input type="text" id="receta-nombre" placeholder="ej. Pasta carbonara">
+      </div>
+    </div>
+    <div class="form-row three">
+      <div>
+        <label>Tipo de comida</label>
+        <select id="receta-tipo">
+          <option value="ambas">Comida y cena</option>
+          <option value="comida">Solo comida</option>
+          <option value="cena">Solo cena</option>
+        </select>
+      </div>
+      <div>
+        <label>¿Reutilizable?</label>
+        <select id="receta-reutilizable">
+          <option value="no">No</option>
+          <option value="si-seguidos">Sí, días seguidos</option>
+          <option value="si-congelado">Sí, con congelación</option>
+        </select>
+      </div>
+      <div>
+        <label>Tiempo (min)</label>
+        <input type="number" id="receta-tiempo" placeholder="30" min="1">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div>
+        <label>Notas (opcional)</label>
+        <textarea id="receta-notas" placeholder="Alérgenos, variantes, consejos..."></textarea>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <strong style="font-size:0.9rem;">🥄 Ingredientes</strong>
+      <button class="btn btn-secondary btn-sm" onclick="agregarFilaIngrediente()">+ Añadir</button>
+    </div>
+    <div style="font-size:0.72rem;color:var(--gray-mid);margin-bottom:8px;display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;">
+      <span>Ingrediente</span><span>Cantidad</span><span>Unidad</span><span></span>
+    </div>
+    <div id="ingredientes-container"></div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarReceta()">💾 Guardar receta</button>
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-receta')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CAMBIO DE SLOT ── -->
+<div id="modal-slot" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-slot')">✕</button>
+    <div class="modal-title" id="modal-slot-titulo">Cambiar comida</div>
+    <div class="form-row single">
+      <div>
+        <label>Buscar receta</label>
+        <input type="text" id="slot-buscar" oninput="filtrarRecetasSlot()" placeholder="Buscar...">
+      </div>
+    </div>
+    <div id="slot-lista" style="max-height:300px;overflow-y:auto;margin-top:8px;"></div>
+    <div class="btn-group">
+      <button class="btn btn-danger btn-sm" onclick="limpiarSlot()">🗑️ Vaciar slot</button>
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-slot')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CONFIG ── -->
+<div id="modal-config" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-config')">✕</button>
+    <div class="modal-title">⚙️ Configuración</div>
+
+    <div class="info-box">
+      Para conectar con Google Sheets necesitas:
+      <ol style="margin-top:8px;padding-left:18px;line-height:2;">
+        <li>Crear una Google Sheet y copiar su <strong>ID</strong> (el trozo largo de la URL)</li>
+        <li>Obtener una <strong>API Key</strong> de Google Cloud Console (gratis)</li>
+        <li>Pegar ambos valores aquí</li>
+      </ol>
+      <a href="#" onclick="abrirAyudaSheets(); return false;" style="display:block;margin-top:8px;">📖 Ver guía detallada</a>
+    </div>
+
+    <div class="config-field">
+      <label>ID de Google Sheet</label>
+      <input type="text" id="cfg-sheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+      <div class="config-note">Lo encuentras en la URL: docs.google.com/spreadsheets/d/<strong>[ESTE ES EL ID]</strong>/edit</div>
+    </div>
+    <div class="config-field">
+      <label>API Key de Google</label>
+      <input type="text" id="cfg-api-key" placeholder="AIzaSy...">
+      <div class="config-note">Crea una en <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → APIs → Sheets API → Credenciales</div>
+    </div>
+    <div class="config-field">
+      <label>URL del Apps Script (para escritura)</label>
+      <input type="text" id="cfg-script-url" placeholder="https://script.google.com/macros/s/.../exec">
+      <div class="config-note">Necesario para guardar recetas, stock y menú en Sheets. <a href="#" onclick="abrirAyudaScript(); return false;">📖 Cómo obtenerla</a></div>
+    </div>
+    <div class="config-field">
+      <label>Número de personas</label>
+      <select id="cfg-personas">
+        <option value="3">3 personas</option>
+        <option value="4" selected>4 personas</option>
+      </select>
+    </div>
+
+    <hr class="divider">
+    <strong style="font-size:0.9rem;display:block;margin-bottom:12px;">📋 Estructura necesaria en Google Sheets</strong>
+    <p style="font-size:0.82rem;color:var(--gray-mid);line-height:1.7;margin-bottom:12px;">
+      Crea estas pestañas exactamente con estos nombres:
+      <br><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">Recetas</code>
+      <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">Ingredientes</code>
+      <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">Stock</code>
+      <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">Menu</code>
+    </p>
+    <button class="btn btn-secondary btn-sm" onclick="copiarPlantilla()">📋 Copiar cabeceras al portapapeles</button>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="guardarConfig()">✅ Guardar configuración</button>
+      <button class="btn btn-sage" onclick="probarConexion()">🔌 Probar lectura</button>
+      <button class="btn btn-gold" onclick="probarScript()">🔌 Probar escritura</button>
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-config')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL AYUDA ── -->
+<div id="modal-ayuda" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-ayuda')">✕</button>
+    <div class="modal-title">📖 Guía de configuración</div>
+    <div style="font-size:0.88rem;line-height:1.8;color:var(--charcoal);">
+      <strong>Paso 1: Crear la Google Sheet</strong>
+      <ol style="margin:8px 0 16px 18px;">
+        <li>Ve a <a href="https://sheets.google.com" target="_blank" style="color:var(--terracotta)">sheets.google.com</a> y crea una hoja nueva</li>
+        <li>Crea 4 pestañas: <strong>Recetas, Ingredientes, Stock, Menu</strong></li>
+        <li>Copia el ID de la URL (la parte entre /d/ y /edit)</li>
+      </ol>
+      <strong>Paso 2: Cabeceras necesarias</strong>
+      <div style="background:var(--warm-white);border-radius:8px;padding:12px;margin:8px 0 16px;font-size:0.8rem;font-family:monospace;line-height:2;">
+        <div><strong>Recetas:</strong> id | nombre | tipo | reutilizable | tiempo | notas</div>
+        <div><strong>Ingredientes:</strong> receta_id | ingrediente | cantidad | unidad</div>
+        <div><strong>Stock:</strong> ingrediente | unidad | cantidad_disponible</div>
+        <div><strong>Menu:</strong> dia | comida | cena</div>
+      </div>
+      <strong>Paso 3: API Key gratuita</strong>
+      <ol style="margin:8px 0 16px 18px;">
+        <li>Ve a <a href="https://console.cloud.google.com" target="_blank" style="color:var(--terracotta)">console.cloud.google.com</a></li>
+        <li>Crea un proyecto nuevo (o usa uno existente)</li>
+        <li>Busca "Google Sheets API" y actívala</li>
+        <li>Ve a Credenciales → Crear credencial → Clave de API</li>
+        <li>Copia la clave generada</li>
+        <li><strong>Importante:</strong> en la Sheet ve a Compartir → "Cualquiera con el enlace puede ver"</li>
+      </ol>
+      <div class="info-box">💡 Con la API Key solo tienes acceso de <strong>lectura</strong>. Para escritura (guardar cambios) necesitarás OAuth2 o usar Apps Script. En modo offline, todos los datos se guardan localmente en tu navegador.</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-ayuda')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL AYUDA SCRIPT ── -->
+<div id="modal-ayuda-script" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal('modal-ayuda-script')">✕</button>
+    <div class="modal-title">📖 Configurar Apps Script (escritura)</div>
+    <div style="font-size:0.88rem;line-height:1.8;color:var(--charcoal);">
+      <strong>Paso 1: Abrir el editor de Apps Script</strong>
+      <ol style="margin:8px 0 16px 18px;">
+        <li>Abre tu Google Sheet</li>
+        <li>Menú superior → <strong>Extensiones → Apps Script</strong></li>
+        <li>Se abre un editor de código en una pestaña nueva</li>
+      </ol>
+      <strong>Paso 2: Pegar el código</strong>
+      <ol style="margin:8px 0 16px 18px;">
+        <li>Borra todo el contenido del archivo <code>Code.gs</code></li>
+        <li>Pega el código del archivo <strong>apps-script.js</strong> que te he dado</li>
+        <li>Pulsa el icono de <strong>💾 Guardar</strong> (o Ctrl+S)</li>
+      </ol>
+      <strong>Paso 3: Publicar como aplicación web</strong>
+      <ol style="margin:8px 0 16px 18px;">
+        <li>Pulsa el botón azul <strong>"Implementar" → "Nueva implementación"</strong></li>
+        <li>Tipo: <strong>Aplicación web</strong></li>
+        <li>Ejecutar como: <strong>Yo (tu cuenta)</strong></li>
+        <li>Quién tiene acceso: <strong>Cualquier usuario</strong></li>
+        <li>Pulsa <strong>Implementar</strong></li>
+        <li>Copia la <strong>URL de la aplicación web</strong> que aparece</li>
+      </ol>
+      <div class="info-box">La URL tendrá este aspecto:<br>
+      <code style="font-size:0.78rem;word-break:break-all;">https://script.google.com/macros/s/AKfycb.../exec</code></div>
+      <strong>Paso 4</strong>: Pega esa URL en el campo "URL del Apps Script" de la configuración de la app.
+      <div class="info-box" style="margin-top:12px;">⚠️ La primera vez que ejecutes una acción de escritura, Google te pedirá que autorices los permisos. Acepta con tu cuenta de Google.</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="cerrarModal('modal-ayuda-script')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const DIAS = ['Sábado','Domingo','Lunes','Martes','Miércoles','Jueves','Viernes'];
+const DIAS_CORTOS = ['Sáb','Dom','Lun','Mar','Mié','Jue','Vie'];
+const DIAS_FINDE = [0, 1]; // índices de fin de semana
+
+let state = {
+  config: { sheetId: '', apiKey: '', personas: 4 },
+  recetas: [],
+  stock: [],
+  menu: {}, // { dia_slot: { receta_id, reutilizable_de } }
+  listaCompra: [],
+  slotActivo: null,
+  editandoRecetaId: null,
+};
+
+// ═══════════════════════════════════════════════════════
+// PERSISTENCIA LOCAL
+// ═══════════════════════════════════════════════════════
+function saveLocal() {
+  try {
+    localStorage.setItem('menu_app_state', JSON.stringify({
+      config: state.config,
+      recetas: state.recetas,
+      stock: state.stock,
+      menu: state.menu,
+      listaCompra: state.listaCompra,
+    }));
+  } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem('menu_app_state');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      Object.assign(state, saved);
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadLocal();
+  renderSemanaLabel();
+  renderMenuGrid();
+  renderRecetas();
+  renderStock();
+  renderListaCompra();
+  renderCocinadas();
+  updateConfigBanner();
+  // Rellenar config form
+  document.getElementById('cfg-sheet-id').value = state.config.sheetId || '';
+  document.getElementById('cfg-api-key').value = state.config.apiKey || '';
+  document.getElementById('cfg-personas').value = state.config.personas || 4;
+});
+
+function updateConfigBanner() {
+  const banner = document.getElementById('config-banner');
+  if (state.config.sheetId && state.config.apiKey) {
+    banner.style.display = 'none';
+  } else {
+    banner.style.display = 'flex';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// MENÚ
+// ═══════════════════════════════════════════════════════
+function renderSemanaLabel() {
+  const hoy = new Date();
+  // Calcular el sábado siguiente (o hoy si es sábado)
+  const diaSemana = hoy.getDay(); // 0=dom, 6=sáb
+  const diffSab = diaSemana === 6 ? 0 : (6 - diaSemana);
+  const sabado = new Date(hoy);
+  sabado.setDate(hoy.getDate() + diffSab);
+  const viernes = new Date(sabado);
+  viernes.setDate(sabado.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+  document.getElementById('semana-label').textContent = `${fmt(sabado)} – ${fmt(viernes)}`;
+}
+
+function renderMenuGrid() {
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = '';
+  DIAS.forEach((dia, i) => {
+    const comidaKey = `${dia}_comida`;
+    const cenaKey = `${dia}_cena`;
+    const comidaSlot = state.menu[comidaKey];
+    const cenaSlot = state.menu[cenaKey];
+    const recetaComida = comidaSlot ? state.recetas.find(r => r.id === comidaSlot.receta_id) : null;
+    const recetaCena = cenaSlot ? state.recetas.find(r => r.id === cenaSlot.receta_id) : null;
+
+    const esFinDe = DIAS_FINDE.includes(i);
+    const col = document.createElement('div');
+    col.className = 'menu-day';
+    col.innerHTML = `
+      <div class="menu-day-header ${esFinDe ? 'weekend' : ''}">${DIAS_CORTOS[i]}</div>
+      <div class="menu-slot" onclick="abrirModalSlot('${dia}','comida')">
+        <div class="menu-slot-label">🌞 Comida</div>
+        ${recetaComida
+          ? `<div class="menu-slot-recipe">${recetaComida.nombre}${comidaSlot.reutilizable_de ? '<span class="reutilizable-badge" title="Reutilizada"></span>' : ''}</div>`
+          : `<div class="menu-slot-empty">+ Añadir</div>`}
+      </div>
+      <div class="menu-slot" onclick="abrirModalSlot('${dia}','cena')">
+        <div class="menu-slot-label">🌙 Cena</div>
+        ${recetaCena
+          ? `<div class="menu-slot-recipe">${recetaCena.nombre}${cenaSlot.reutilizable_de ? '<span class="reutilizable-badge" title="Reutilizada"></span>' : ''}</div>`
+          : `<div class="menu-slot-empty">+ Añadir</div>`}
+      </div>
+    `;
+    grid.appendChild(col);
+  });
+  renderMenuResumen();
+}
+
+function renderMenuResumen() {
+  const resumen = document.getElementById('menu-resumen');
+  const total = DIAS.length * 2;
+  let rellenados = 0;
+  let reutilizables = 0;
+  Object.values(state.menu).forEach(slot => {
+    if (slot && slot.receta_id) {
+      rellenados++;
+      if (slot.reutilizable_de) reutilizables++;
+    }
+  });
+  const pct = Math.round((rellenados / total) * 100);
+  resumen.innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+      <span>${rellenados} de ${total} slots completados</span>
+      <span style="font-weight:600;color:var(--terracotta)">${pct}%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+    ${reutilizables > 0 ? `<p style="margin-top:10px;font-size:0.82rem;"><span class="reutilizable-badge"></span> ${reutilizables} slots usan una receta reutilizada (menos cocina esta semana 🎉)</p>` : ''}
+    ${rellenados === total ? '<p style="margin-top:10px;color:var(--success);font-weight:600;">✅ ¡Menú completo! Puedes generar la lista de la compra.</p>' : ''}
+  `;
+}
+
+function generarMenuAleatorio() {
+  if (state.recetas.length === 0) {
+    showToast('Añade recetas primero', 'error');
+    return;
+  }
+  const newMenu = {};
+  const usadasEsSemana = {}; // receta_id -> [slots usados]
+
+  DIAS.forEach(dia => {
+    ['comida', 'cena'].forEach(turno => {
+      const key = `${dia}_${turno}`;
+      // Buscar si alguna receta reutilizable ya asignada puede cubrirla
+      let asignada = null;
+
+      // Primero comprobar si hay una receta reutilizable de días seguidos que pueda extenderse
+      for (const [usadaKey, usadaSlot] of Object.entries(newMenu)) {
+        const recetaUsada = state.recetas.find(r => r.id === usadaSlot.receta_id && !usadaSlot.reutilizable_de);
+        if (recetaUsada && recetaUsada.reutilizable !== 'no') {
+          const [diaUsado, turnoUsado] = usadaKey.split('_');
+          const idxDiaUsado = DIAS.indexOf(diaUsado);
+          const idxDia = DIAS.indexOf(dia);
+          const contig = Math.abs(idxDia - idxDiaUsado) === 1 && recetaUsada.reutilizable === 'si-seguidos';
+          const congelado = recetaUsada.reutilizable === 'si-congelado';
+          const yaReutilizada = Object.values(newMenu).some(s => s.reutilizable_de === usadaSlot.receta_id);
+          if (!yaReutilizada && (contig || congelado) && Math.random() < 0.3) {
+            asignada = { receta_id: recetaUsada.id, reutilizable_de: diaUsado + '_' + turnoUsado };
+          }
+        }
+      }
+
+      if (!asignada) {
+        // Filtrar recetas válidas para este turno
+        const validas = state.recetas.filter(r => {
+          if (turno === 'comida' && r.tipo === 'cena') return false;
+          if (turno === 'cena' && r.tipo === 'comida') return false;
+          return true;
+        });
+        if (validas.length === 0) return;
+        // Evitar repetir en la misma semana (si hay suficientes recetas)
+        const noUsadas = validas.filter(r => !Object.values(newMenu).some(s => s.receta_id === r.id && !s.reutilizable_de));
+        const pool = noUsadas.length >= 3 ? noUsadas : validas;
+        const elegida = pool[Math.floor(Math.random() * pool.length)];
+        asignada = { receta_id: elegida.id, reutilizable_de: null };
+      }
+
+      newMenu[key] = asignada;
+    });
+  });
+
+  state.menu = newMenu;
+  renderMenuGrid();
+  showToast('¡Menú generado! Puedes ajustarlo manualmente.', 'success');
+}
+
+function limpiarMenu() {
+  if (!confirm('¿Limpiar todo el menú?')) return;
+  state.menu = {};
+  renderMenuGrid();
+  showToast('Menú limpiado');
+}
+
+function guardarMenu() {
+  saveLocal();
+  if (state.config.sheetId && state.config.apiKey) {
+    saveMenuToSheets();
+  } else {
+    showToast('Menú guardado localmente ✓', 'success');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL SLOT
+// ═══════════════════════════════════════════════════════
+function abrirModalSlot(dia, turno) {
+  state.slotActivo = { dia, turno };
+  document.getElementById('modal-slot-titulo').textContent =
+    `${turno === 'comida' ? '🌞 Comida' : '🌙 Cena'} · ${dia}`;
+  document.getElementById('slot-buscar').value = '';
+  filtrarRecetasSlot();
+  document.getElementById('modal-slot').classList.remove('hidden');
+}
+
+function filtrarRecetasSlot() {
+  const q = document.getElementById('slot-buscar').value.toLowerCase();
+  const { turno } = state.slotActivo || {};
+  const lista = document.getElementById('slot-lista');
+  const validas = state.recetas.filter(r => {
+    if (turno === 'comida' && r.tipo === 'cena') return false;
+    if (turno === 'cena' && r.tipo === 'comida') return false;
+    if (q && !r.nombre.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (validas.length === 0) {
+    lista.innerHTML = '<div class="empty-state" style="padding:20px"><p>No hay recetas que coincidan.</p></div>';
+    return;
+  }
+
+  lista.innerHTML = validas.map(r => `
+    <div class="recipe-item" onclick="elegirRecetaSlot('${r.id}')" style="cursor:pointer;">
+      <div class="recipe-item-info">
+        <div class="recipe-item-name">${r.nombre}</div>
+        <div class="recipe-item-meta">
+          <span class="badge badge-${r.tipo}">${tipoLabel(r.tipo)}</span>
+          ${r.reutilizable !== 'no' ? `<span class="badge badge-reutilizable">♻️ Reutilizable</span>` : ''}
+          ${r.tiempo ? `<span>⏱ ${r.tiempo} min</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function elegirRecetaSlot(recetaId) {
+  const { dia, turno } = state.slotActivo;
+  const key = `${dia}_${turno}`;
+  state.menu[key] = { receta_id: recetaId, reutilizable_de: null };
+  cerrarModal('modal-slot');
+  renderMenuGrid();
+}
+
+function limpiarSlot() {
+  const { dia, turno } = state.slotActivo;
+  delete state.menu[`${dia}_${turno}`];
+  cerrarModal('modal-slot');
+  renderMenuGrid();
+}
+
+// ═══════════════════════════════════════════════════════
+// RECETAS
+// ═══════════════════════════════════════════════════════
+function abrirModalReceta(id = null) {
+  state.editandoRecetaId = id;
+  const receta = id ? state.recetas.find(r => r.id === id) : null;
+
+  document.getElementById('modal-receta-titulo').textContent = receta ? 'Editar receta' : 'Nueva receta';
+  document.getElementById('receta-nombre').value = receta ? receta.nombre : '';
+  document.getElementById('receta-tipo').value = receta ? receta.tipo : 'ambas';
+  document.getElementById('receta-reutilizable').value = receta ? receta.reutilizable : 'no';
+  document.getElementById('receta-tiempo').value = receta ? (receta.tiempo || '') : '';
+  document.getElementById('receta-notas').value = receta ? (receta.notas || '') : '';
+
+  // Ingredientes
+  const cont = document.getElementById('ingredientes-container');
+  cont.innerHTML = '';
+  const ings = receta ? (receta.ingredientes || []) : [{ nombre: '', cantidad: '', unidad: 'g' }];
+  ings.forEach(ing => agregarFilaIngrediente(ing));
+  if (ings.length === 0) agregarFilaIngrediente();
+
+  document.getElementById('modal-receta').classList.remove('hidden');
+  document.getElementById('receta-nombre').focus();
+}
+
+const UNIDADES = ['g','kg','ml','l','tsp','tbsp','unidades','rebanadas','dientes','ramas','puñados','al gusto'];
+
+function agregarFilaIngrediente(ing = {}) {
+  const cont = document.getElementById('ingredientes-container');
+  const row = document.createElement('div');
+  row.className = 'ingredient-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Ingrediente" value="${ing.nombre || ''}" class="ing-nombre">
+    <input type="number" placeholder="Cant." value="${ing.cantidad || ''}" class="ing-cantidad" min="0" step="0.1">
+    <select class="ing-unidad">
+      ${UNIDADES.map(u => `<option value="${u}" ${ing.unidad === u ? 'selected' : ''}>${u}</option>`).join('')}
+    </select>
+    <button class="del-btn" onclick="this.parentElement.remove()">✕</button>
+  `;
+  cont.appendChild(row);
+}
+
+function guardarReceta() {
+  const nombre = document.getElementById('receta-nombre').value.trim();
+  if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+
+  const ingredientes = [];
+  document.querySelectorAll('#ingredientes-container .ingredient-row').forEach(row => {
+    const nom = row.querySelector('.ing-nombre').value.trim();
+    const cant = row.querySelector('.ing-cantidad').value.trim();
+    const uni = row.querySelector('.ing-unidad').value;
+    if (nom) ingredientes.push({ nombre: nom, cantidad: parseFloat(cant) || 0, unidad: uni });
+  });
+
+  const receta = {
+    id: state.editandoRecetaId || 'r_' + Date.now(),
+    nombre,
+    tipo: document.getElementById('receta-tipo').value,
+    reutilizable: document.getElementById('receta-reutilizable').value,
+    tiempo: parseInt(document.getElementById('receta-tiempo').value) || null,
+    notas: document.getElementById('receta-notas').value.trim(),
+    ingredientes,
+  };
+
+  if (state.editandoRecetaId) {
+    const idx = state.recetas.findIndex(r => r.id === state.editandoRecetaId);
+    state.recetas[idx] = receta;
+    showToast('Receta actualizada ✓', 'success');
+  } else {
+    state.recetas.push(receta);
+    showToast('Receta añadida ✓', 'success');
+  }
+
+  actualizarStockConIngredientes(receta);
+  saveLocal();
+  cerrarModal('modal-receta');
+  renderRecetas();
+  renderStock();
+  // Sincronizar con Sheets si hay Apps Script configurado
+  if (state.config.scriptUrl) {
+    const ingredientes = [];
+    state.recetas.forEach(r => (r.ingredientes||[]).forEach(ing => ingredientes.push({ receta_id: r.id, ...ing })));
+    Promise.all([
+      scriptPost('saveRecetas', { recetas: state.recetas }),
+      scriptPost('saveIngredientes', { ingredientes }),
+      scriptPost('saveStock', { stock: state.stock }),
+    ]).then(results => {
+      if (results.every(Boolean)) showToast('Receta guardada en Sheets ✓', 'success');
+    });
+    return; // el toast lo muestra la Promise
+  }
+}
+
+function actualizarStockConIngredientes(receta) {
+  (receta.ingredientes || []).forEach(ing => {
+    const existe = state.stock.find(s => s.ingrediente.toLowerCase() === ing.nombre.toLowerCase());
+    if (!existe) {
+      state.stock.push({ ingrediente: ing.nombre, unidad: ing.unidad, cantidad_disponible: 0 });
+    }
+  });
+}
+
+function renderRecetas() {
+  const lista = document.getElementById('recetas-lista');
+  if (state.recetas.length === 0) {
+    lista.innerHTML = `<div class="empty-state"><div class="icon">👨‍🍳</div><p>No hay recetas todavía.<br>Añade tu primera receta para empezar.</p></div>`;
+    return;
+  }
+  lista.innerHTML = state.recetas.map(r => `
+    <div class="recipe-item">
+      <div class="recipe-item-info">
+        <div class="recipe-item-name">${r.nombre}</div>
+        <div class="recipe-item-meta">
+          <span class="badge badge-${r.tipo}">${tipoLabel(r.tipo)}</span>
+          ${r.reutilizable !== 'no' ? `<span class="badge badge-reutilizable">♻️ ${reutilizableLabel(r.reutilizable)}</span>` : ''}
+          ${r.tiempo ? `<span>⏱ ${r.tiempo} min</span>` : ''}
+          <span>🥄 ${(r.ingredientes||[]).length} ingredientes</span>
+        </div>
+        ${r.notas ? `<div style="font-size:0.75rem;color:var(--gray-mid);margin-top:4px;">📝 ${r.notas}</div>` : ''}
+      </div>
+      <div class="flex gap-8">
+        <button class="btn btn-secondary btn-sm" onclick="abrirModalReceta('${r.id}')">✏️</button>
+        <button class="btn btn-sm" style="background:#ffeaea;color:var(--danger)" onclick="eliminarReceta('${r.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function eliminarReceta(id) {
+  if (!confirm('¿Eliminar esta receta?')) return;
+  state.recetas = state.recetas.filter(r => r.id !== id);
+  // Limpiar del menú
+  Object.keys(state.menu).forEach(k => {
+    if (state.menu[k].receta_id === id) delete state.menu[k];
+  });
+  saveLocal();
+  renderRecetas();
+  renderMenuGrid();
+  showToast('Receta eliminada');
+}
+
+function tipoLabel(t) {
+  return { comida: '🌞 Comida', cena: '🌙 Cena', ambas: '🌞🌙 Ambas' }[t] || t;
+}
+function reutilizableLabel(r) {
+  return { 'si-seguidos': 'Días seguidos', 'si-congelado': 'Con congelación' }[r] || r;
+}
+
+// ═══════════════════════════════════════════════════════
+// STOCK
+// ═══════════════════════════════════════════════════════
+function renderStock() {
+  const cont = document.getElementById('stock-container');
+  if (state.stock.length === 0) {
+    cont.innerHTML = `<div class="empty-state"><div class="icon">📦</div><p>El stock se llena automáticamente con los ingredientes de tus recetas.<br>Añade recetas primero.</p></div>`;
+    return;
+  }
+  cont.innerHTML = `
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>Ingrediente</th>
+          <th>Unidad</th>
+          <th>Cantidad disponible</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.stock.map((s, i) => `
+          <tr>
+            <td><strong>${s.ingrediente}</strong></td>
+            <td>
+              <select onchange="state.stock[${i}].unidad=this.value" style="width:auto;padding:5px 8px;font-size:0.82rem;">
+                ${UNIDADES.map(u => `<option value="${u}" ${s.unidad===u?'selected':''}>${u}</option>`).join('')}
+              </select>
+            </td>
+            <td>
+              <input type="number" class="stock-qty-input" value="${s.cantidad_disponible}" min="0" step="0.1"
+                onchange="state.stock[${i}].cantidad_disponible=parseFloat(this.value)||0">
+            </td>
+            <td>
+              <button class="del-btn" onclick="eliminarStock(${i})">✕</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function agregarIngredienteStock() {
+  const nombre = prompt('Nombre del ingrediente:');
+  if (!nombre) return;
+  state.stock.push({ ingrediente: nombre.trim(), unidad: 'g', cantidad_disponible: 0 });
+  renderStock();
+}
+
+function eliminarStock(i) {
+  state.stock.splice(i, 1);
+  renderStock();
+}
+
+function guardarStock() {
+  saveLocal();
+  showToast('Stock guardado ✓', 'success');
+  if (state.config.sheetId && state.config.apiKey) {
+    saveStockToSheets();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// LISTA DE COMPRA
+// ═══════════════════════════════════════════════════════
+function generarListaCompra() {
+  const necesidades = {}; // ingrediente -> { cantidad, unidad }
+
+  Object.values(state.menu).forEach(slot => {
+    if (!slot || !slot.receta_id || slot.reutilizable_de) return; // No contar reutilizadas (misma cocción)
+    const receta = state.recetas.find(r => r.id === slot.receta_id);
+    if (!receta) return;
+    (receta.ingredientes || []).forEach(ing => {
+      const key = ing.nombre.toLowerCase();
+      if (!necesidades[key]) necesidades[key] = { nombre: ing.nombre, cantidad: 0, unidad: ing.unidad };
+      necesidades[key].cantidad += ing.cantidad;
+    });
+  });
+
+  // Restar stock
+  state.listaCompra = Object.values(necesidades).map(n => {
+    const enStock = state.stock.find(s => s.ingrediente.toLowerCase() === n.nombre.toLowerCase());
+    const disponible = enStock ? enStock.cantidad_disponible : 0;
+    const aComprar = Math.max(0, n.cantidad - disponible);
+    return {
+      nombre: n.nombre,
+      necesario: n.cantidad,
+      disponible,
+      aComprar,
+      unidad: n.unidad,
+      comprado: false,
+    };
+  }).filter(i => i.aComprar > 0 || i.necesario > 0);
+
+  saveLocal();
+  renderListaCompra();
+  showSection('compra');
+  showToast('Lista de la compra actualizada ✓', 'success');
+}
+
+function renderListaCompra() {
+  const cont = document.getElementById('compra-container');
+  const items = state.listaCompra;
+  if (!items || items.length === 0) {
+    cont.innerHTML = `<div class="empty-state"><div class="icon">🛒</div><p>Genera un menú y pulsa "Recalcular"<br>para ver la lista de la compra.</p></div>`;
+    return;
+  }
+
+  const hayQueComprar = items.filter(i => i.aComprar > 0);
+  const tieneEnStock = items.filter(i => i.aComprar === 0 && i.necesario > 0);
+
+  let html = '';
+  if (hayQueComprar.length > 0) {
+    html += `<h3 style="font-size:0.85rem;font-weight:700;color:var(--terracotta);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">🛍️ A comprar (${hayQueComprar.length} items)</h3>`;
+    html += `<ul class="shopping-list">`;
+    hayQueComprar.forEach((item, i) => {
+      const idx = state.listaCompra.indexOf(item);
+      html += `
+        <li class="shopping-item ${item.comprado ? 'checked' : ''}">
+          <input type="checkbox" ${item.comprado ? 'checked' : ''} onchange="toggleComprado(${idx})">
+          <span>${item.nombre}</span>
+          <span class="shopping-need">${formatCantidad(item.aComprar)} ${item.unidad}</span>
+        </li>
+      `;
+    });
+    html += `</ul>`;
+  }
+
+  if (tieneEnStock.length > 0) {
+    html += `<h3 style="font-size:0.85rem;font-weight:700;color:var(--sage);margin:16px 0 10px;text-transform:uppercase;letter-spacing:0.5px;">✅ Ya tienes en stock (${tieneEnStock.length} items)</h3>`;
+    html += `<ul class="shopping-list">`;
+    tieneEnStock.forEach(item => {
+      html += `
+        <li class="shopping-item" style="opacity:0.6">
+          <span>✓</span>
+          <span>${item.nombre}</span>
+          <span class="shopping-need" style="color:var(--sage)">${formatCantidad(item.disponible)} ${item.unidad}</span>
+        </li>
+      `;
+    });
+    html += `</ul>`;
+  }
+
+  cont.innerHTML = html;
+  renderCocinadas();
+}
+
+function toggleComprado(idx) {
+  state.listaCompra[idx].comprado = !state.listaCompra[idx].comprado;
+  saveLocal();
+  renderListaCompra();
+}
+
+function marcarCompraRealizada() {
+  if (!confirm('¿Marcar compra realizada? Se actualizará el stock con los ingredientes comprados.')) return;
+  state.listaCompra.forEach(item => {
+    if (item.aComprar > 0) {
+      const stockItem = state.stock.find(s => s.ingrediente.toLowerCase() === item.nombre.toLowerCase());
+      if (stockItem) {
+        stockItem.cantidad_disponible += item.aComprar;
+      } else {
+        state.stock.push({ ingrediente: item.nombre, unidad: item.unidad, cantidad_disponible: item.aComprar });
+      }
+    }
+  });
+  saveLocal();
+  renderStock();
+  renderListaCompra();
+  showToast('¡Stock actualizado con la compra! ✓', 'success');
+}
+
+function renderCocinadas() {
+  const lista = document.getElementById('cocinadas-lista');
+  const slotsConReceta = Object.entries(state.menu).filter(([k, v]) => v && v.receta_id && !v.reutilizable_de);
+  if (slotsConReceta.length === 0) {
+    lista.innerHTML = '<p style="font-size:0.85rem;color:var(--gray-mid);">No hay recetas en el menú actual.</p>';
+    return;
+  }
+
+  // Agrupar por receta única
+  const recetasMenu = {};
+  slotsConReceta.forEach(([key, slot]) => {
+    const [dia, turno] = key.split('_');
+    if (!recetasMenu[slot.receta_id]) {
+      const receta = state.recetas.find(r => r.id === slot.receta_id);
+      recetasMenu[slot.receta_id] = { receta, slots: [] };
+    }
+    recetasMenu[slot.receta_id].slots.push(`${dia} (${turno})`);
+  });
+
+  lista.innerHTML = Object.values(recetasMenu).map(({ receta, slots }) => `
+    <label style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-light);cursor:pointer;">
+      <input type="checkbox" value="${receta.id}" style="margin-top:2px;width:auto;accent-color:var(--terracotta);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${receta.nombre}</div>
+        <div style="font-size:0.75rem;color:var(--gray-mid);">${slots.join(', ')}</div>
+      </div>
+    </label>
+  `).join('');
+}
+
+function marcarCocinadas() {
+  const checks = document.querySelectorAll('#cocinadas-lista input[type="checkbox"]:checked');
+  if (checks.length === 0) { showToast('Selecciona al menos una receta', 'error'); return; }
+
+  checks.forEach(cb => {
+    const recetaId = cb.value;
+    const receta = state.recetas.find(r => r.id === recetaId);
+    if (!receta) return;
+    (receta.ingredientes || []).forEach(ing => {
+      const stockItem = state.stock.find(s => s.ingrediente.toLowerCase() === ing.nombre.toLowerCase());
+      if (stockItem) {
+        stockItem.cantidad_disponible = Math.max(0, stockItem.cantidad_disponible - ing.cantidad);
+      }
+    });
+  });
+
+  saveLocal();
+  renderStock();
+  renderListaCompra();
+  showToast(`${checks.length} receta(s) cocinadas. Stock actualizado ✓`, 'success');
+}
+
+function formatCantidad(n) {
+  return Number.isInteger(n) ? n : parseFloat(n.toFixed(2));
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFIG & GOOGLE SHEETS
+// ═══════════════════════════════════════════════════════
+function openConfig() {
+  document.getElementById('cfg-sheet-id').value = state.config.sheetId || '';
+  document.getElementById('cfg-api-key').value = state.config.apiKey || '';
+  document.getElementById('cfg-script-url').value = state.config.scriptUrl || '';
+  document.getElementById('cfg-personas').value = state.config.personas || 4;
+  document.getElementById('modal-config').classList.remove('hidden');
+}
+
+function guardarConfig() {
+  state.config.sheetId = document.getElementById('cfg-sheet-id').value.trim();
+  state.config.apiKey = document.getElementById('cfg-api-key').value.trim();
+  state.config.scriptUrl = document.getElementById('cfg-script-url').value.trim();
+  state.config.personas = parseInt(document.getElementById('cfg-personas').value);
+  saveLocal();
+  updateConfigBanner();
+  cerrarModal('modal-config');
+  showToast('Configuración guardada ✓', 'success');
+}
+
+async function probarConexion() {
+  const sheetId = document.getElementById('cfg-sheet-id').value.trim();
+  const apiKey = document.getElementById('cfg-api-key').value.trim();
+  if (!sheetId || !apiKey) { showToast('Rellena el ID y la API Key primero', 'error'); return; }
+  showToast('Probando lectura...');
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.spreadsheetId) {
+      showToast('✅ Lectura correcta: ' + data.properties.title, 'success');
+    } else {
+      showToast('❌ Error: ' + (data.error?.message || 'Fallo'), 'error');
+    }
+  } catch(e) {
+    showToast('❌ Error de red: ' + e.message, 'error');
+  }
+}
+
+async function probarScript() {
+  const url = document.getElementById('cfg-script-url').value.trim();
+  if (!url) { showToast('Introduce primero la URL del Apps Script', 'error'); return; }
+  showToast('Probando escritura...');
+  try {
+    const res = await fetch(url + '?action=getAll');
+    const data = await res.json();
+    if (data.recetas !== undefined) {
+      showToast('✅ Apps Script conectado correctamente', 'success');
+    } else {
+      showToast('❌ Respuesta inesperada del script', 'error');
+    }
+  } catch(e) {
+    showToast('❌ Error: ' + e.message, 'error');
+  }
+}
+
+// ── ESCRITURA VÍA APPS SCRIPT ────────────────────────────────
+async function scriptPost(action, payload) {
+  const url = state.config.scriptUrl;
+  if (!url) return false;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action, ...payload }),
+    });
+    const data = await res.json();
+    return data.ok === true;
+  } catch(e) {
+    console.error('Apps Script error:', e);
+    return false;
+  }
+}
+
+async function syncAllToSheets() {
+  if (!state.config.scriptUrl) return;
+  // Aplanar ingredientes de todas las recetas
+  const ingredientes = [];
+  state.recetas.forEach(r => {
+    (r.ingredientes || []).forEach(ing => {
+      ingredientes.push({ receta_id: r.id, ...ing });
+    });
+  });
+  await Promise.all([
+    scriptPost('saveRecetas', { recetas: state.recetas }),
+    scriptPost('saveIngredientes', { ingredientes }),
+    scriptPost('saveStock', { stock: state.stock }),
+    scriptPost('saveMenu', { menu: state.menu }),
+  ]);
+}
+
+async function loadFromSheets() {
+  // Si hay Apps Script, usarlo para leer todo de una vez
+  if (state.config.scriptUrl) {
+    try {
+      const res = await fetch(state.config.scriptUrl + '?action=getAll');
+      const data = await res.json();
+      if (data.recetas) {
+        // Reconstruir recetas con sus ingredientes
+        state.recetas = (data.recetas || []).map(r => ({
+          id: String(r.id), nombre: r.nombre, tipo: r.tipo,
+          reutilizable: r.reutilizable, tiempo: r.tiempo ? parseInt(r.tiempo) : null,
+          notas: r.notas || '', ingredientes: []
+        }));
+        (data.ingredientes || []).forEach(ing => {
+          const receta = state.recetas.find(r => r.id === String(ing.receta_id));
+          if (receta) receta.ingredientes.push({ nombre: ing.ingrediente, cantidad: parseFloat(ing.cantidad) || 0, unidad: ing.unidad });
+        });
+        state.stock = (data.stock || []).map(s => ({
+          ingrediente: s.ingrediente, unidad: s.unidad, cantidad_disponible: parseFloat(s.cantidad_disponible) || 0
+        }));
+        state.menu = {};
+        (data.menu || []).forEach(row => {
+          if (row.comida) state.menu[`${row.dia}_comida`] = { receta_id: String(row.comida), reutilizable_de: row.reutilizable_comida || null };
+          if (row.cena)   state.menu[`${row.dia}_cena`]   = { receta_id: String(row.cena),   reutilizable_de: row.reutilizable_cena   || null };
+        });
+        saveLocal();
+        renderRecetas(); renderStock(); renderMenuGrid(); renderListaCompra();
+        showToast('Datos cargados desde Google Sheets ✓', 'success');
+        return;
+      }
+    } catch(e) { /* fallback a API Key */ }
+  }
+
+  // Fallback: leer via API Key (solo lectura)
+  if (!state.config.sheetId || !state.config.apiKey) return;
+  const base = `https://sheets.googleapis.com/v4/spreadsheets/${state.config.sheetId}/values`;
+  const key = `?key=${state.config.apiKey}`;
+  try {
+    const [rRes, iRes, sRes, mRes] = await Promise.all([
+      fetch(`${base}/Recetas${key}`).then(r => r.json()),
+      fetch(`${base}/Ingredientes${key}`).then(r => r.json()),
+      fetch(`${base}/Stock${key}`).then(r => r.json()),
+      fetch(`${base}/Menu${key}`).then(r => r.json()),
+    ]);
+    if (rRes.values && rRes.values.length > 1) {
+      state.recetas = rRes.values.slice(1).map(r => ({
+        id: r[0], nombre: r[1], tipo: r[2], reutilizable: r[3],
+        tiempo: r[4] ? parseInt(r[4]) : null, notas: r[5] || '', ingredientes: []
+      }));
+    }
+    if (iRes.values && iRes.values.length > 1) {
+      iRes.values.slice(1).forEach(row => {
+        const receta = state.recetas.find(r => r.id === row[0]);
+        if (receta) receta.ingredientes.push({ nombre: row[1], cantidad: parseFloat(row[2]) || 0, unidad: row[3] });
+      });
+    }
+    if (sRes.values && sRes.values.length > 1) {
+      state.stock = sRes.values.slice(1).map(r => ({
+        ingrediente: r[0], unidad: r[1], cantidad_disponible: parseFloat(r[2]) || 0
+      }));
+    }
+    if (mRes.values && mRes.values.length > 1) {
+      state.menu = {};
+      mRes.values.slice(1).forEach(row => {
+        if (row[1]) state.menu[`${row[0]}_comida`] = { receta_id: row[1], reutilizable_de: row[3] || null };
+        if (row[2]) state.menu[`${row[0]}_cena`]   = { receta_id: row[2], reutilizable_de: row[4] || null };
+      });
+    }
+    saveLocal();
+    renderRecetas(); renderStock(); renderMenuGrid(); renderListaCompra();
+    showToast('Datos cargados desde Google Sheets ✓', 'success');
+  } catch(e) {
+    showToast('Error cargando Sheets: ' + e.message, 'error');
+  }
+}
+
+async function saveMenuToSheets() {
+  const ok = await scriptPost('saveMenu', { menu: state.menu });
+  showToast(ok ? '✅ Menú guardado en Sheets' : '💾 Guardado local (sin Apps Script)', ok ? 'success' : '');
+}
+
+async function saveStockToSheets() {
+  const ok = await scriptPost('saveStock', { stock: state.stock });
+  showToast(ok ? '✅ Stock guardado en Sheets' : '💾 Guardado local (sin Apps Script)', ok ? 'success' : '');
+}
+
+function copiarPlantilla() {
+  const texto = `HOJA: Recetas\nid\tnombre\ttipo\treutilizable\ttiempo\tnotas\n\nHOJA: Ingredientes\nreceta_id\tingrediente\tcantidad\tunidad\n\nHOJA: Stock\ningrediente\tunidad\tcantidad_disponible\n\nHOJA: Menu\ndia\tcomida\tcena\treutilizable_comida\treutilizable_cena`;
+  navigator.clipboard.writeText(texto).then(() => showToast('¡Cabeceras copiadas! Pégalas en tu Google Sheet ✓', 'success'));
+}
+
+function abrirAyudaSheets() {
+  cerrarModal('modal-config');
+  document.getElementById('modal-ayuda').classList.remove('hidden');
+}
+
+function abrirAyudaScript() {
+  cerrarModal('modal-config');
+  document.getElementById('modal-ayuda-script').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL UTILS
+// ═══════════════════════════════════════════════════════
+function cerrarModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+// Cerrar modales al hacer clic fuera
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.add('hidden');
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+}
+</script>
+</body>
+</html>
