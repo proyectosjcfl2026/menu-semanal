@@ -874,11 +874,18 @@ const DIAS = ['Sábado','Domingo','Lunes','Martes','Miércoles','Jueves','Vierne
 const DIAS_CORTOS = ['Sáb','Dom','Lun','Mar','Mié','Jue','Vie'];
 const DIAS_FINDE = [0, 1]; // índices de fin de semana
 
+const DEFAULT_CONFIG = {
+  sheetId: '1nMcsAxYbyd9CyC34sI2ZVx5sOfBqAj39w-CTxjwtkGI',
+  apiKey: 'AIzaSyBUbgTIxlpV7TWLE5bWebvBQ6vom_VMROA',
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbydB_QzOMhYPI5G9Sv_3HLywRraONBvkEEhM6bPig8zVU1qdSPqY555HOVpMJAAMK3U7w/exec',
+  personas: 4
+};
+
 let state = {
-  config: { sheetId: '', apiKey: '', personas: 4 },
+  config: { ...DEFAULT_CONFIG },
   recetas: [],
   stock: [],
-  menu: {}, // { dia_slot: { receta_id, reutilizable_de } }
+  menu: {},
   listaCompra: [],
   slotActivo: null,
   editandoRecetaId: null,
@@ -904,9 +911,20 @@ function loadLocal() {
     const raw = localStorage.getItem('menu_app_state');
     if (raw) {
       const saved = JSON.parse(raw);
-      Object.assign(state, saved);
+
+      state.config = {
+        ...DEFAULT_CONFIG,
+        ...(saved.config || {})
+      };
+
+      state.recetas = saved.recetas || [];
+      state.stock = saved.stock || [];
+      state.menu = saved.menu || {};
+      state.listaCompra = saved.listaCompra || [];
     }
-  } catch(e) {}
+  } catch (e) {
+    state.config = { ...DEFAULT_CONFIG };
+  }
 }
 
 // ═══════════════════════════════════════════════════════
