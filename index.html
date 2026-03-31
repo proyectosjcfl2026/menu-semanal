@@ -894,7 +894,7 @@ let state = {
 // ═══════════════════════════════════════════════════════
 // PERSISTENCIA LOCAL
 // ═══════════════════════════════════════════════════════
-function saveLocal() {
+/*function saveLocal() {
   try {
     localStorage.setItem('menu_app_state', JSON.stringify({
       config: state.config,
@@ -904,9 +904,9 @@ function saveLocal() {
       listaCompra: state.listaCompra,
     }));
   } catch(e) {}
-}
+}*/
 
-function loadLocal() {
+/*function loadLocal() {
   try {
     const raw = localStorage.getItem('menu_app_state');
     if (raw) {
@@ -925,20 +925,20 @@ function loadLocal() {
   } catch (e) {
     state.config = { ...DEFAULT_CONFIG };
   }
-}
+}*/
 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  loadLocal();
-  loadFromSheets();
+  //loadLocal();
   renderSemanaLabel();
-  renderMenuGrid();
-  renderRecetas();
-  renderStock();
-  renderListaCompra();
-  renderCocinadas();
+  loadFromSheets();
+  //renderMenuGrid();
+  //renderRecetas();
+  //renderStock();
+  //renderListaCompra();
+  //renderCocinadas();
   updateConfigBanner();
   // Rellenar config form
   document.getElementById('cfg-sheet-id').value = state.config.sheetId || '';
@@ -1100,7 +1100,7 @@ function limpiarMenu() {
 }
 
 function guardarMenu() {
-  saveLocal();
+  //saveLocal();
   if (state.config.sheetId && state.config.apiKey) {
     saveMenuToSheets();
   } else {
@@ -1239,7 +1239,7 @@ function guardarReceta() {
   }
 
   actualizarStockConIngredientes(receta);
-  saveLocal();
+  //saveLocal();
   cerrarModal('modal-receta');
   renderRecetas();
   renderStock();
@@ -1300,7 +1300,7 @@ function eliminarReceta(id) {
   Object.keys(state.menu).forEach(k => {
     if (state.menu[k].receta_id === id) delete state.menu[k];
   });
-  saveLocal();
+  //saveLocal();
   renderRecetas();
   renderMenuGrid();
   showToast('Receta eliminada');
@@ -1368,7 +1368,7 @@ function eliminarStock(i) {
 }
 
 function guardarStock() {
-  saveLocal();
+  //saveLocal();
   showToast('Stock guardado ✓', 'success');
   if (state.config.sheetId && state.config.apiKey) {
     saveStockToSheets();
@@ -1407,7 +1407,7 @@ function generarListaCompra() {
     };
   }).filter(i => i.aComprar > 0 || i.necesario > 0);
 
-  saveLocal();
+  //saveLocal();
   renderListaCompra();
   showSection('compra');
   showToast('Lista de la compra actualizada ✓', 'success');
@@ -1462,7 +1462,7 @@ function renderListaCompra() {
 
 function toggleComprado(idx) {
   state.listaCompra[idx].comprado = !state.listaCompra[idx].comprado;
-  saveLocal();
+  //saveLocal();
   renderListaCompra();
 }
 
@@ -1478,7 +1478,7 @@ function marcarCompraRealizada() {
       }
     }
   });
-  saveLocal();
+  //saveLocal();
   renderStock();
   renderListaCompra();
   showToast('¡Stock actualizado con la compra! ✓', 'success');
@@ -1530,7 +1530,7 @@ function marcarCocinadas() {
     });
   });
 
-  saveLocal();
+  //saveLocal();
   renderStock();
   renderListaCompra();
   showToast(`${checks.length} receta(s) cocinadas. Stock actualizado ✓`, 'success');
@@ -1556,7 +1556,7 @@ function guardarConfig() {
   state.config.apiKey = document.getElementById('cfg-api-key').value.trim();
   state.config.scriptUrl = document.getElementById('cfg-script-url').value.trim();
   state.config.personas = parseInt(document.getElementById('cfg-personas').value);
-  saveLocal();
+  //saveLocal();
   updateConfigBanner();
   cerrarModal('modal-config');
   showToast('Configuración guardada ✓', 'success');
@@ -1657,7 +1657,7 @@ async function loadFromSheets() {
           if (row.comida) state.menu[`${row.dia}_comida`] = { receta_id: String(row.comida), reutilizable_de: row.reutilizable_comida || null };
           if (row.cena)   state.menu[`${row.dia}_cena`]   = { receta_id: String(row.cena),   reutilizable_de: row.reutilizable_cena   || null };
         });
-        saveLocal();
+        //saveLocal();
         renderRecetas(); renderStock(); renderMenuGrid(); renderListaCompra();
         showToast('Datos cargados desde Google Sheets ✓', 'success');
         return;
@@ -1700,7 +1700,7 @@ async function loadFromSheets() {
         if (row[2]) state.menu[`${row[0]}_cena`]   = { receta_id: row[2], reutilizable_de: row[4] || null };
       });
     }
-    saveLocal();
+    //saveLocal();
     renderRecetas(); renderStock(); renderMenuGrid(); renderListaCompra();
     showToast('Datos cargados desde Google Sheets ✓', 'success');
   } catch(e) {
