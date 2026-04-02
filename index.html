@@ -1137,7 +1137,7 @@ function filtrarRecetasSlot() {
   }
 
   lista.innerHTML = validas.map(r => `
-    <div class="recipe-item" onclick="elegirRecetaSlot('${r.id}')" style="cursor:pointer;">
+    <div class="recipe-item" onclick="('${r.id}')" style="cursor:pointer;">
       <div class="recipe-item-info">
         <div class="recipe-item-name">${r.nombre}</div>
         <div class="recipe-item-meta">
@@ -1154,48 +1154,31 @@ function elegirRecetaSlot(recetaId) {
   const { dia, turno } = state.slotActivo;
   const key = `${dia}_${turno}`;
 
-  // Si este slot era "cocinado original" y otros lo reutilizaban,
-  // al cambiarlo liberamos esas reutilizaciones (pasan a cocinados normales)
-  Object.entries(state.menu).forEach(([k, s]) => {
-    if (s && s.reutilizable_de === key) {
-      state.menu[k] = { ...s, reutilizable_de: null };
-    }
-  });
-
   const receta = state.recetas.find(r => r.id === recetaId);
   let reutilizable_de = null;
 
-  if (receta && receta.reutilizable && receta.reutilizable !== 'no') {
-    // 1) Buscar "cocinados originales" de esta receta (sin reutilizable_de)
-    const originales = Object.entries(state.menu)
-      .filter(([k, s]) => s && s.receta_id === recetaId && !s.reutilizable_de && k !== key);
+  // Buscar un cocinado previo de esta receta que aún no tenga reutilización
+  if (receta && receta.reutilizable !== 'no') {
+    for (const [k, slot] of Object.entries(state.menu)) {
+      if (!slot) continue;
+      if (slot.receta_id !== recetaId) continue;
+      if (slot.reutilizable_de) continue; // este ya es reutilizado
 
-    // 2) Elegir un original que aún no tenga pareja reutilizada
-    const candidatos = originales
-      .map(([origKey]) => {
-        const reusesCount = Object.values(state.menu)
-          .filter(x => x && x.reutilizable_de === origKey).length;
+      // Ver si este original ya tiene una reutilización
+      const yaReutilizado = Object.values(state.menu)
+        .some(s => s && s.reutilizable_de === k);
+      if (yaReutilizado) continue;
 
-        // ya tiene pareja (1 cocinado = 2 menús) => no vale
-        if (reusesCount >= 1) return null;
+      // Regla días seguidos
+      if (receta.reutilizable === 'si-seguidos') {
+        const diaOrig = k.split('_')[0];
+        const idxOrig = DIAS.indexOf(diaOrig);
+        const idxNuevo = DIAS.indexOf(dia);
+        if (Math.abs(idxNuevo - idxOrig) !== 1) continue;
+      }
 
-        // si es "días seguidos", solo reutiliza si es día adyacente
-        if (receta.reutilizable === 'si-seguidos') {
-          const diaOrig = origKey.split('_')[0];
-          const idxOrig = DIAS.indexOf(diaOrig);
-          const idxDest = DIAS.indexOf(dia);
-          if (Math.abs(idxDest - idxOrig) !== 1) return null;
-          return { origKey, score: 1 };
-        }
-
-        // si es "con congelación", vale cualquier día
-        return { origKey, score: 0 };
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.score - b.score);
-
-    if (candidatos.length > 0) {
-      reutilizable_de = candidatos[0].origKey;
+      reutilizable_de = k;
+      break;
     }
   }
 
@@ -1204,11 +1187,8 @@ function elegirRecetaSlot(recetaId) {
   cerrarModal('modal-slot');
   renderMenuGrid();
 
-  // (Opcional recomendado) Guardar menú automáticamente en Sheets cuando cambias un slot:
-  // if (state.config.scriptUrl) saveMenuToSheets();
-
   if (reutilizable_de) {
-    showToast('♻️ Marcada como reutilizada (no duplica ingredientes)', 'success');
+    showToast('♻️ Reutilizada: no duplica ingredientes', 'success');
   }
 }
 
@@ -1433,58 +1413,54 @@ function guardarStock() {
 // LISTA DE COMPRA
 // ═══════════════════════════════════════════════════════
 function generarListaCompra() {
-  const necesidades = {};   // ingrediente -> { nombre, cantidad, unidad }
-  const conteoRecetas = {}; // receta_id -> veces en el menú (incluye reutilizadas)
+  const necesidades = {};
+  const conteoRecetas = {};
 
-  // 1) Contar apariciones por receta
+  // Contar cuántas veces aparece cada receta en el menú
   Object.values(state.menu).forEach(slot => {
     if (!slot || !slot.receta_id) return;
     conteoRecetas[slot.receta_id] = (conteoRecetas[slot.receta_id] || 0) + 1;
   });
 
-  // 2) Sumar ingredientes aplicando batches:
-  // reutilizable => 1 cocinado sirve para 2 menús => ceil(veces/2)
   Object.entries(conteoRecetas).forEach(([recetaId, veces]) => {
     const receta = state.recetas.find(r => r.id === recetaId);
     if (!receta) return;
 
-    const esReutilizable = receta.reutilizable && receta.reutilizable !== 'no';
-    const batches = esReutilizable ? Math.ceil(veces / 2) : veces;
+    const esReutilizable = receta.reutilizable !== 'no';
+    const cocinados = esReutilizable ? Math.ceil(veces / 2) : veces;
 
     (receta.ingredientes || []).forEach(ing => {
-      const key = (ing.nombre || '').toLowerCase();
-      if (!key) return;
-
+      const key = ing.nombre.toLowerCase();
       if (!necesidades[key]) {
-        necesidades[key] = { nombre: ing.nombre, cantidad: 0, unidad: ing.unidad };
+        necesidades[key] = {
+          nombre: ing.nombre,
+          cantidad: 0,
+          unidad: ing.unidad
+        };
       }
-
-      necesidades[key].cantidad += (parseFloat(ing.cantidad) || 0) * batches;
+      necesidades[key].cantidad += (ing.cantidad || 0) * cocinados;
     });
   });
 
-  // 3) Restar stock y construir lista
   state.listaCompra = Object.values(necesidades)
     .map(n => {
-      const enStock = state.stock.find(s => s.ingrediente.toLowerCase() === n.nombre.toLowerCase());
-      const disponible = enStock ? (parseFloat(enStock.cantidad_disponible) || 0) : 0;
-      const aComprar = Math.max(0, n.cantidad - disponible);
-
+      const stock = state.stock.find(
+        s => s.ingrediente.toLowerCase() === n.nombre.toLowerCase()
+      );
+      const disponible = stock ? stock.cantidad_disponible : 0;
       return {
         nombre: n.nombre,
         necesario: n.cantidad,
         disponible,
-        aComprar,
+        aComprar: Math.max(0, n.cantidad - disponible),
         unidad: n.unidad,
-        comprado: false,
+        comprado: false
       };
     })
-    .filter(i => i.necesario > 0);
-
-  // 4) Orden alfabético (ignorando mayúsculas/acentos)
-  state.listaCompra.sort((a, b) =>
-    a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
-  );
+    .filter(i => i.necesario > 0)
+    .sort((a, b) =>
+      a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+    );
 
   renderListaCompra();
   showSection('compra');
