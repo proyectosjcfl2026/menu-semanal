@@ -1153,9 +1153,63 @@ function filtrarRecetasSlot() {
 function elegirRecetaSlot(recetaId) {
   const { dia, turno } = state.slotActivo;
   const key = `${dia}_${turno}`;
-  state.menu[key] = { receta_id: recetaId, reutilizable_de: null };
+
+  // Si este slot era "cocinado original" y otros lo reutilizaban,
+  // al cambiarlo liberamos esas reutilizaciones (pasan a cocinados normales)
+  Object.entries(state.menu).forEach(([k, s]) => {
+    if (s && s.reutilizable_de === key) {
+      state.menu[k] = { ...s, reutilizable_de: null };
+    }
+  });
+
+  const receta = state.recetas.find(r => r.id === recetaId);
+  let reutilizable_de = null;
+
+  if (receta && receta.reutilizable && receta.reutilizable !== 'no') {
+    // 1) Buscar "cocinados originales" de esta receta (sin reutilizable_de)
+    const originales = Object.entries(state.menu)
+      .filter(([k, s]) => s && s.receta_id === recetaId && !s.reutilizable_de && k !== key);
+
+    // 2) Elegir un original que aún no tenga pareja reutilizada
+    const candidatos = originales
+      .map(([origKey]) => {
+        const reusesCount = Object.values(state.menu)
+          .filter(x => x && x.reutilizable_de === origKey).length;
+
+        // ya tiene pareja (1 cocinado = 2 menús) => no vale
+        if (reusesCount >= 1) return null;
+
+        // si es "días seguidos", solo reutiliza si es día adyacente
+        if (receta.reutilizable === 'si-seguidos') {
+          const diaOrig = origKey.split('_')[0];
+          const idxOrig = DIAS.indexOf(diaOrig);
+          const idxDest = DIAS.indexOf(dia);
+          if (Math.abs(idxDest - idxOrig) !== 1) return null;
+          return { origKey, score: 1 };
+        }
+
+        // si es "con congelación", vale cualquier día
+        return { origKey, score: 0 };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.score - b.score);
+
+    if (candidatos.length > 0) {
+      reutilizable_de = candidatos[0].origKey;
+    }
+  }
+
+  state.menu[key] = { receta_id: recetaId, reutilizable_de };
+
   cerrarModal('modal-slot');
   renderMenuGrid();
+
+  // (Opcional recomendado) Guardar menú automáticamente en Sheets cuando cambias un slot:
+  // if (state.config.scriptUrl) saveMenuToSheets();
+
+  if (reutilizable_de) {
+    showToast('♻️ Marcada como reutilizada (no duplica ingredientes)', 'success');
+  }
 }
 
 function limpiarSlot() {
@@ -1379,35 +1433,59 @@ function guardarStock() {
 // LISTA DE COMPRA
 // ═══════════════════════════════════════════════════════
 function generarListaCompra() {
-  const necesidades = {}; // ingrediente -> { cantidad, unidad }
+  const necesidades = {};   // ingrediente -> { nombre, cantidad, unidad }
+  const conteoRecetas = {}; // receta_id -> veces en el menú (incluye reutilizadas)
 
+  // 1) Contar apariciones por receta
   Object.values(state.menu).forEach(slot => {
-    if (!slot || !slot.receta_id || slot.reutilizable_de) return; // No contar reutilizadas (misma cocción)
-    const receta = state.recetas.find(r => r.id === slot.receta_id);
+    if (!slot || !slot.receta_id) return;
+    conteoRecetas[slot.receta_id] = (conteoRecetas[slot.receta_id] || 0) + 1;
+  });
+
+  // 2) Sumar ingredientes aplicando batches:
+  // reutilizable => 1 cocinado sirve para 2 menús => ceil(veces/2)
+  Object.entries(conteoRecetas).forEach(([recetaId, veces]) => {
+    const receta = state.recetas.find(r => r.id === recetaId);
     if (!receta) return;
+
+    const esReutilizable = receta.reutilizable && receta.reutilizable !== 'no';
+    const batches = esReutilizable ? Math.ceil(veces / 2) : veces;
+
     (receta.ingredientes || []).forEach(ing => {
-      const key = ing.nombre.toLowerCase();
-      if (!necesidades[key]) necesidades[key] = { nombre: ing.nombre, cantidad: 0, unidad: ing.unidad };
-      necesidades[key].cantidad += ing.cantidad;
+      const key = (ing.nombre || '').toLowerCase();
+      if (!key) return;
+
+      if (!necesidades[key]) {
+        necesidades[key] = { nombre: ing.nombre, cantidad: 0, unidad: ing.unidad };
+      }
+
+      necesidades[key].cantidad += (parseFloat(ing.cantidad) || 0) * batches;
     });
   });
 
-  // Restar stock
-  state.listaCompra = Object.values(necesidades).map(n => {
-    const enStock = state.stock.find(s => s.ingrediente.toLowerCase() === n.nombre.toLowerCase());
-    const disponible = enStock ? enStock.cantidad_disponible : 0;
-    const aComprar = Math.max(0, n.cantidad - disponible);
-    return {
-      nombre: n.nombre,
-      necesario: n.cantidad,
-      disponible,
-      aComprar,
-      unidad: n.unidad,
-      comprado: false,
-    };
-  }).filter(i => i.aComprar > 0 || i.necesario > 0);
+  // 3) Restar stock y construir lista
+  state.listaCompra = Object.values(necesidades)
+    .map(n => {
+      const enStock = state.stock.find(s => s.ingrediente.toLowerCase() === n.nombre.toLowerCase());
+      const disponible = enStock ? (parseFloat(enStock.cantidad_disponible) || 0) : 0;
+      const aComprar = Math.max(0, n.cantidad - disponible);
 
-  //saveLocal();
+      return {
+        nombre: n.nombre,
+        necesario: n.cantidad,
+        disponible,
+        aComprar,
+        unidad: n.unidad,
+        comprado: false,
+      };
+    })
+    .filter(i => i.necesario > 0);
+
+  // 4) Orden alfabético (ignorando mayúsculas/acentos)
+  state.listaCompra.sort((a, b) =>
+    a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+  );
+
   renderListaCompra();
   showSection('compra');
   showToast('Lista de la compra actualizada ✓', 'success');
