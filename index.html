@@ -1061,7 +1061,7 @@ function generarMenuAleatorio() {
           const idxDia = DIAS.indexOf(dia);
           const contig = Math.abs(idxDia - idxDiaUsado) === 1 && recetaUsada.reutilizable === 'si-seguidos';
           const congelado = recetaUsada.reutilizable === 'si-congelado';
-          const yaReutilizada = Object.values(newMenu).some(s => s.reutilizable_de === usadaSlot.receta_id);
+          const yaReutilizada = Object.values(newMenu).some(s => s.reutilizable_de === usadaKey);
           if (!yaReutilizada && (contig || congelado) && Math.random() < 0.3) {
             asignada = { receta_id: recetaUsada.id, reutilizable_de: diaUsado + '_' + turnoUsado };
           }
@@ -1137,17 +1137,18 @@ function filtrarRecetasSlot() {
   }
 
   lista.innerHTML = validas.map(r => `
-    <div class="recipe-item" onclick="('${r.id}')" style="cursor:pointer;">
-      <div class="recipe-item-info">
-        <div class="recipe-item-name">${r.nombre}</div>
-        <div class="recipe-item-meta">
-          <span class="badge badge-${r.tipo}">${tipoLabel(r.tipo)}</span>
-          ${r.reutilizable !== 'no' ? `<span class="badge badge-reutilizable">♻️ Reutilizable</span>` : ''}
-          ${r.tiempo ? `<span>⏱ ${r.tiempo} min</span>` : ''}
-        </div>
+  <div class="recipe-item" onclick="elegirRecetaSlot('${r.id}')" style="cursor:pointer;">
+    <div class="recipe-item-info">
+      <div class="recipe-item-name">${r.nombre}</div>
+      <div class="recipe-item-meta">
+        <span class="badge badge-${r.tipo}">${tipoLabel(r.tipo)}</span>
+        ${r.reutilizable !== 'no' ? `<span class="badge badge-reutilizable">♻️ Reutilizable</span>` : ''}
+        ${r.tiempo ? `<span>⏱ ${r.tiempo} min</span>` : ''}
       </div>
     </div>
-  `).join('');
+  </div>
+`).join('');
+``
 }
 
 function elegirRecetaSlot(recetaId) {
