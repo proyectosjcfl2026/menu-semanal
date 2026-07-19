@@ -707,7 +707,6 @@
     <div class="btn-group">
       <button class="btn btn-primary" onclick="guardarReceta()">💾 Guardar receta</button>
       <button class="btn btn-secondary" onclick="cerrarModal('modal-receta')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarComentarioSlot()">💾 Guardar comentario</button>
     </div>
   </div>
 </div>
@@ -737,6 +736,7 @@
     <div class="btn-group">
       <button class="btn btn-danger btn-sm" onclick="limpiarSlot()">🗑️ Vaciar slot</button>
       <button class="btn btn-secondary" onclick="cerrarModal('modal-slot')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarComentarioSlot()">💾 Guardar comentario</button>
     </div>
   </div>
 </div>
@@ -1147,8 +1147,11 @@ function guardarComentarioSlot() {
   const key = `${dia}_${turno}`;
 
   if (!state.menu[key]) {
-    showToast('Primero selecciona una receta', 'error');
-    return;
+    state.menu[key] = {
+      receta_id: null,
+      reutilizable_de: null,
+      comentario: ''
+    };
   }
 
   state.menu[key].comentario =
