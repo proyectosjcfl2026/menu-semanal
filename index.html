@@ -707,6 +707,7 @@
     <div class="btn-group">
       <button class="btn btn-primary" onclick="guardarReceta()">💾 Guardar receta</button>
       <button class="btn btn-secondary" onclick="cerrarModal('modal-receta')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarComentarioSlot()">💾 Guardar comentario</button>
     </div>
   </div>
 </div>
@@ -722,6 +723,16 @@
         <input type="text" id="slot-buscar" oninput="filtrarRecetasSlot()" placeholder="Buscar...">
       </div>
     </div>
+  <div class="form-row single">
+   <div>
+    <label>Comentario</label>
+    <input
+      type="text"
+      id="slot-comentario"
+      placeholder="Ej: Tupper de lentejas"
+    >
+   </div>
+ </div>
     <div id="slot-lista" style="max-height:300px;overflow-y:auto;margin-top:8px;"></div>
     <div class="btn-group">
       <button class="btn btn-danger btn-sm" onclick="limpiarSlot()">🗑️ Vaciar slot</button>
@@ -1000,13 +1011,37 @@ function renderMenuGrid() {
       <div class="menu-slot" onclick="abrirModalSlot('${dia}','comida')">
         <div class="menu-slot-label">🌞 Comida</div>
         ${recetaComida
-          ? `<div class="menu-slot-recipe">${recetaComida.nombre}${comidaSlot.reutilizable_de ? '<span class="reutilizable-badge" title="Reutilizada"></span>' : ''}</div>`
+  ? `
+  <div class="menu-slot-recipe">
+    ${recetaComida.nombre}
+    ${comidaSlot.reutilizable_de ? '<span class="reutilizable-badge"></span>' : ''}
+    ${
+      comidaSlot.comentario
+      ? `<div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;">
+          📝 ${comidaSlot.comentario}
+         </div>`
+      : ''
+    }
+  </div>
+  `
           : `<div class="menu-slot-empty">+ Añadir</div>`}
       </div>
       <div class="menu-slot" onclick="abrirModalSlot('${dia}','cena')">
         <div class="menu-slot-label">🌙 Cena</div>
         ${recetaCena
-          ? `<div class="menu-slot-recipe">${recetaCena.nombre}${cenaSlot.reutilizable_de ? '<span class="reutilizable-badge" title="Reutilizada"></span>' : ''}</div>`
+  ? `
+  <div class="menu-slot-recipe">
+    ${recetaCena.nombre}
+    ${cenaSlot.reutilizable_de ? '<span class="reutilizable-badge"></span>' : ''}
+    ${
+      cenaSlot.comentario
+      ? `<div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;">
+          📝 ${cenaSlot.comentario}
+         </div>`
+      : ''
+    }
+  </div>
+  `
           : `<div class="menu-slot-empty">+ Añadir</div>`}
       </div>
     `;
@@ -1107,7 +1142,23 @@ function guardarMenu() {
     showToast('Menú guardado localmente ✓', 'success');
   }
 }
+function guardarComentarioSlot() {
+  const { dia, turno } = state.slotActivo;
+  const key = `${dia}_${turno}`;
 
+  if (!state.menu[key]) {
+    showToast('Primero selecciona una receta', 'error');
+    return;
+  }
+
+  state.menu[key].comentario =
+    document.getElementById('slot-comentario').value.trim();
+
+  cerrarModal('modal-slot');
+  renderMenuGrid();
+
+  showToast('Comentario guardado ✓', 'success');
+}
 // ═══════════════════════════════════════════════════════
 // MODAL SLOT
 // ═══════════════════════════════════════════════════════
@@ -1116,6 +1167,8 @@ function abrirModalSlot(dia, turno) {
   document.getElementById('modal-slot-titulo').textContent =
     `${turno === 'comida' ? '🌞 Comida' : '🌙 Cena'} · ${dia}`;
   document.getElementById('slot-buscar').value = '';
+  const slot = state.menu[`${dia}_${turno}`];
+  document.getElementById('slot-comentario').value = slot?.comentario || '';
   filtrarRecetasSlot();
   document.getElementById('modal-slot').classList.remove('hidden');
 }
@@ -1183,7 +1236,11 @@ function elegirRecetaSlot(recetaId) {
     }
   }
 
-  state.menu[key] = { receta_id: recetaId, reutilizable_de };
+  state.menu[key] = {
+  receta_id: recetaId,
+  reutilizable_de,
+  comentario: document.getElementById('slot-comentario').value.trim()
+};
 
   cerrarModal('modal-slot');
   renderMenuGrid();
