@@ -1807,19 +1807,23 @@ async function loadFromSheets() {
         state.menu = {};
         (data.menu || []).forEach(row => {
           (data.menu || []).forEach(row => {
-  if (row.comida)
+
+  if (row.comida || row.comentario_comida) {
     state.menu[`${row.dia}_comida`] = {
-      receta_id: String(row.comida),
+      receta_id: row.comida ? String(row.comida) : null,
       reutilizable_de: row.reutilizable_comida || null,
       comentario: row.comentario_comida || ''
     };
+  }
 
-  if (row.cena)
+  if (row.cena || row.comentario_cena) {
     state.menu[`${row.dia}_cena`] = {
-      receta_id: String(row.cena),
+      receta_id: row.cena ? String(row.cena) : null,
       reutilizable_de: row.reutilizable_cena || null,
       comentario: row.comentario_cena || ''
     };
+  }
+
 });
         });
         //saveLocal();
