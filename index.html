@@ -1009,41 +1009,76 @@ function renderMenuGrid() {
     col.innerHTML = `
       <div class="menu-day-header ${esFinDe ? 'weekend' : ''}">${DIAS_CORTOS[i]}</div>
       <div class="menu-slot" onclick="abrirModalSlot('${dia}','comida')">
-        <div class="menu-slot-label">🌞 Comida</div>
-        ${recetaComida
-  ? `
-  <div class="menu-slot-recipe">
-    ${recetaComida.nombre}
-    ${comidaSlot.reutilizable_de ? '<span class="reutilizable-badge"></span>' : ''}
-    ${
-      comidaSlot.comentario
-      ? `<div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;">
-          📝 ${comidaSlot.comentario}
-         </div>`
-      : ''
-    }
-  </div>
-  `
-          : `<div class="menu-slot-empty">+ Añadir</div>`}
+  <div class="menu-slot-label">🌞 Comida</div>
+
+  ${recetaComida
+    ? `
+      <div class="menu-slot-recipe">
+        ${recetaComida.nombre}
+        ${comidaSlot.reutilizable_de
+          ? '<span class="reutilizable-badge" title="Reutilizada"></span>'
+          : ''}
+
+        ${comidaSlot.comentario
+          ? `
+            <div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;">
+              📝 ${comidaSlot.comentario}
+            </div>
+          `
+          : ''}
       </div>
-      <div class="menu-slot" onclick="abrirModalSlot('${dia}','cena')">
-        <div class="menu-slot-label">🌙 Cena</div>
-        ${recetaCena
-  ? `
-  <div class="menu-slot-recipe">
-    ${recetaCena.nombre}
-    ${cenaSlot.reutilizable_de ? '<span class="reutilizable-badge"></span>' : ''}
-    ${
-      cenaSlot.comentario
-      ? `<div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;">
-          📝 ${cenaSlot.comentario}
-         </div>`
-      : ''
-    }
-  </div>
-  `
-          : `<div class="menu-slot-empty">+ Añadir</div>`}
+    `
+    : `
+      <div class="menu-slot-empty">
+        + Añadir
+
+        ${comidaSlot?.comentario
+          ? `
+            <div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;font-style:normal;">
+              📝 ${comidaSlot.comentario}
+            </div>
+          `
+          : ''}
       </div>
+    `
+  }
+</div>
+
+<div class="menu-slot" onclick="abrirModalSlot('${dia}','cena')">
+  <div class="menu-slot-label">🌙 Cena</div>
+
+  ${recetaCena
+    ? `
+      <div class="menu-slot-recipe">
+        ${recetaCena.nombre}
+        ${cenaSlot.reutilizable_de
+          ? '<span class="reutilizable-badge" title="Reutilizada"></span>'
+          : ''}
+
+        ${cenaSlot.comentario
+          ? `
+            <div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;">
+              📝 ${cenaSlot.comentario}
+            </div>
+          `
+          : ''}
+      </div>
+    `
+    : `
+      <div class="menu-slot-empty">
+        + Añadir
+
+        ${cenaSlot?.comentario
+          ? `
+            <div style="font-size:0.68rem;color:var(--gray-mid);margin-top:2px;font-style:normal;">
+              📝 ${cenaSlot.comentario}
+            </div>
+          `
+          : ''}
+      </div>
+    `
+  }
+</div>
     `;
     grid.appendChild(col);
   });
