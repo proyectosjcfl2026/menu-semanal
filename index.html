@@ -1157,6 +1157,8 @@ function guardarComentarioSlot() {
   state.menu[key].comentario =
     document.getElementById('slot-comentario').value.trim();
 
+  saveMenuToSheets();
+
   cerrarModal('modal-slot');
   renderMenuGrid();
 
@@ -1769,8 +1771,21 @@ async function loadFromSheets() {
         }));
         state.menu = {};
         (data.menu || []).forEach(row => {
-          if (row.comida) state.menu[`${row.dia}_comida`] = { receta_id: String(row.comida), reutilizable_de: row.reutilizable_comida || null };
-          if (row.cena)   state.menu[`${row.dia}_cena`]   = { receta_id: String(row.cena),   reutilizable_de: row.reutilizable_cena   || null };
+          (data.menu || []).forEach(row => {
+  if (row.comida)
+    state.menu[`${row.dia}_comida`] = {
+      receta_id: String(row.comida),
+      reutilizable_de: row.reutilizable_comida || null,
+      comentario: row.comentario_comida || ''
+    };
+
+  if (row.cena)
+    state.menu[`${row.dia}_cena`] = {
+      receta_id: String(row.cena),
+      reutilizable_de: row.reutilizable_cena || null,
+      comentario: row.comentario_cena || ''
+    };
+});
         });
         //saveLocal();
         renderRecetas(); renderStock(); renderMenuGrid(); renderListaCompra();
@@ -1811,8 +1826,17 @@ async function loadFromSheets() {
     if (mRes.values && mRes.values.length > 1) {
       state.menu = {};
       mRes.values.slice(1).forEach(row => {
-        if (row[1]) state.menu[`${row[0]}_comida`] = { receta_id: row[1], reutilizable_de: row[3] || null };
-        if (row[2]) state.menu[`${row[0]}_cena`]   = { receta_id: row[2], reutilizable_de: row[4] || null };
+        if (row[1]) state.menu[`${row[0]}_comida`] = {
+  receta_id: row[1],
+  reutilizable_de: row[3] || null,
+  comentario: row[5] || ''
+};
+
+if (row[2]) state.menu[`${row[0]}_cena`] = {
+  receta_id: row[2],
+  reutilizable_de: row[4] || null,
+  comentario: row[6] || ''
+};
       });
     }
     //saveLocal();
